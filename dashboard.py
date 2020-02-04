@@ -12,8 +12,6 @@ from dash.dependencies import Input, Output, State
 import plotly.express as px
 import plotly.graph_objects as go
 
-# import cufflinks as cf
-
 # Initialize app
 
 app = dash.Dash(
@@ -26,7 +24,7 @@ server = app.server
 
 #Data for Tab-1
 # Reading data for Map with Slider
-df = pd.read_csv('data.csv')
+df = pd.read_csv('ufo_data.csv')
 df['year'] = df['Date_time'].apply(lambda x: int(re.findall(r'...\d\s', str(x))[0].strip()))
 YEARS = range(df['year'].min(), df['year'].max() + 1, 4)
 
@@ -46,57 +44,13 @@ year = df1['year'].to_list()
 
 #Data for Tab-2
 # Import data and read .csv files to create Pandas DataFram
-path = 'updated.csv'
+path = 'ufo_data.csv'
 data_viz3 = pd.read_csv(path)
 data_viz3.dropna()
 
 available_indicators = data_viz3['UFO_shape'].unique()
 country = data_viz3['country'].unique()
 ufo_count = data_viz3['UFO_shape'].value_counts()
-
-BINS = [
-    "0-2",
-    "2.1-4",
-    "4.1-6",
-    "6.1-8",
-    "8.1-10",
-    "10.1-12",
-    "12.1-14",
-    "14.1-16",
-    "16.1-18",
-    "18.1-20",
-    "20.1-22",
-    "22.1-24",
-    "24.1-26",
-    "26.1-28",
-    "28.1-30",
-    ">30",
-]
-
-DEFAULT_COLORSCALE = [
-    "#f2fffb",
-    "#bbffeb",
-    "#98ffe0",
-    "#79ffd6",
-    "#6df0c8",
-    "#69e7c0",
-    "#59dab2",
-    "#45d0a5",
-    "#31c194",
-    "#2bb489",
-    "#25a27b",
-    "#1e906d",
-    "#188463",
-    "#157658",
-    "#11684d",
-    "#10523e",
-]
-
-DEFAULT_OPACITY = 0.8
-
-mapbox_access_token = "pk.eyJ1IjoicGxvdGx5bWFwYm94IiwiYSI6ImNqdnBvNDMyaTAxYzkzeW5ubWdpZ2VjbmMifQ.TXcBE-xg9BFdV2ocecc_7g"
-mapbox_style = "mapbox://styles/plotlymapbox/cjvprkf3t1kns1cqjxuxmwixz"
-
 
 # Map with Slider
 def MAP(selected_year):
@@ -217,46 +171,23 @@ app.layout = html.Div([html.Div(
                                 ],
                             ),
                             html.Div(
-                                id="heatmap-container",
+                                id="map-container",
                                 children=[
                                     html.P(
                                         "Number of UFO sightings \
                                         in year {0}".format(
                                             min(YEARS)
                                         ),
-                                        id="heatmap-title",
+                                        id="map-title",
                                     ),
                                     html.Div(id='text-content'),
                                     # dcc.Graph(id='UFO_map'),
                                     dcc.Graph(
-                                        id="UFO_map",
-                                        figure=dict(
-                                            # data=[
-                                            #     dict(
-                                            #         lat=df_lat_lon["Latitude "],
-                                            #         lon=df_lat_lon["Longitude"],
-                                            #         text=df_lat_lon["Hover"],
-                                            #         type="scattermapbox",
-                                            #     )
-                                            # ],
-                                            layout=dict(
-                                                mapbox=dict(
-                                                    layers=[],
-                                                    accesstoken=mapbox_access_token,
-                                                    style=mapbox_style,
-                                                    center=dict(
-                                                        lat=38.72490, lon=-95.61446
-                                                    ),
-                                                    pitch=0,
-                                                    zoom=3.5,
-                                                ),
-                                                autosize=True,
-                                            ),
-                                        ),
+                                        id="UFO_map"
                                     ),
                                     html.P(
                                         "Shape of UFO's",
-                                    id="heatmap-title1",
+                                    id="map-title1",
                                     ),
                                     dcc.Graph(id='bar_chart', figure=fig1)
                                 ], style={'color': '#40e0d0'},
@@ -293,7 +224,7 @@ app.layout = html.Div([html.Div(
 
 
 # App layout
-@app.callback(Output("heatmap-title", "children"), [Input("years-slider", "value")])
+@app.callback(Output("map-title", "children"), [Input("years-slider", "value")])
 def update_map_title(year):
     return "Number of UFO Sightings in the year {0}".format(
         year
@@ -318,7 +249,7 @@ def update_figure(country, shape):
 def update_text_map2(hoverData1):
     if hoverData1 is not None:
         text = hoverData1['points'][0]['text']
-        return html.H4(f'UFO Description: {text},',style={'color': 'red', 'fontSize': 18})
+        return html.H4('UFO Description: ',text,style={'color': 'red', 'fontSize': 18})
 
 if __name__ == "__main__":
     app.run_server(debug=True)
